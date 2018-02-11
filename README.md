@@ -1,7 +1,7 @@
 # shiro-redis-spring-boot-starter
 ```xml
 <dependency>
-   <groupId>com.pramy</groupId>
+   <groupId>com.pramyness</groupId>
    <artifactId>shiro-redis-spring-boot-starter</artifactId>
    <version>${version}</version>
 </dependency>
