@@ -1,4 +1,4 @@
-package com.pramy.shiro.redis;
+package com.pramyness.shiro.redis;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -6,10 +6,14 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import org.apache.shiro.session.mgt.SimpleSession;
 import org.apache.shiro.web.util.SavedRequest;
+import org.objenesis.strategy.StdInstantiatorStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * IntelliJ IDEA 17
@@ -19,17 +23,13 @@ public class KryoSerializer<T> implements RedisSerializer<T> {
 
     private final Logger logger = LoggerFactory.getLogger(KryoSerializer.class);
 
-    private  final ThreadLocal<Kryo> KRYO_THREAD_LOCAL;
+    private static ThreadLocal<Kryo> KRYO_THREAD_LOCAL;
 
-    public KryoSerializer(boolean serializeForTransient) {
+    public KryoSerializer(final boolean  serializeForTransient, final List<Class<?>> list) {
         KRYO_THREAD_LOCAL = new ThreadLocal<Kryo>(){
             @Override
             protected Kryo initialValue() {
-                Kryo kryo = new Kryo();
-                kryo.getFieldSerializerConfig().setSerializeTransient(serializeForTransient);
-                kryo.register(SimpleSession.class);
-                kryo.register(SavedRequest.class,new JavaSerializer());
-                return kryo;
+                return init(serializeForTransient,list);
             }
         };
     }
@@ -42,7 +42,7 @@ public class KryoSerializer<T> implements RedisSerializer<T> {
             return null;
         }
         Kryo kryo = KRYO_THREAD_LOCAL.get();
-        Output output = new Output(1024, -1);
+        Output output = new Output(4096, -1);
         kryo.writeClassAndObject(output, t);
         byte[] bytes = output.toBytes();
         output.close();
@@ -61,5 +61,17 @@ public class KryoSerializer<T> implements RedisSerializer<T> {
         Object o = kryo.readClassAndObject(input);
         input.close();
         return (T) o;
+    }
+
+    private Kryo init(boolean serializeForTransient,List<Class<?>>list){
+        final Kryo kryo = new Kryo();
+        kryo.getFieldSerializerConfig().setSerializeTransient(serializeForTransient);
+        kryo.setInstantiatorStrategy(new Kryo.DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
+        kryo.register(SimpleSession.class);
+        kryo.register(SavedRequest.class);
+        for (Class<?> aClass : list) {
+            kryo.register(aClass);
+        }
+        return kryo;
     }
 }

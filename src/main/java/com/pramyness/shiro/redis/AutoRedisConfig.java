@@ -1,8 +1,8 @@
-package com.pramy.shiro.redis;
+package com.pramyness.shiro.redis;
 
-import com.pramy.shiro.redis.cache.RedisCache;
-import com.pramy.shiro.redis.cache.RedisCacheManager;
-import com.pramy.shiro.redis.session.RedisSessionDao;
+import com.pramyness.shiro.redis.cache.RedisCache;
+import com.pramyness.shiro.redis.cache.RedisCacheManager;
+import com.pramyness.shiro.redis.session.RedisSessionDao;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.util.List;
 
@@ -29,23 +28,22 @@ import java.util.List;
  * Created by Pramy on 2018/2/9.
  */
 @Configuration
-@EnableConfigurationProperties({RedisCacheProperties.class, ShiroProperties.class})
+@EnableConfigurationProperties({RedisCacheProperties.class})
 @ConditionalOnClass(RedisConnectionFactory.class)
 public class AutoRedisConfig {
 
     @Autowired
     private RedisCacheProperties redisCacheProperties;
-    @Autowired
-    private ShiroProperties shiroProperties;
 
     @Bean(name = "redisTemplate")
     public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
-        KryoSerializer<Object> kryoSerializer = new KryoSerializer<>(redisCacheProperties.getSerializeTransient());
+        KryoSerializer<Object> kryoSerializer = new KryoSerializer<>(redisCacheProperties.getSerializeTransient(),
+                redisCacheProperties.getClassList());
         redisTemplate.setValueSerializer(kryoSerializer);
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setKeySerializer(kryoSerializer);
         redisTemplate.setHashValueSerializer(kryoSerializer);
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(kryoSerializer);
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         return redisTemplate;
     }
@@ -97,7 +95,7 @@ public class AutoRedisConfig {
     public DefaultShiroFilterChainDefinition chain() {
         DefaultShiroFilterChainDefinition chain = new DefaultShiroFilterChainDefinition();
         chain.addPathDefinition("/static/**", "anon");
-        chain.addPathDefinitions(shiroProperties.getFilterChain());
+        chain.addPathDefinitions(redisCacheProperties.getFilterChain());
         return chain;
     }
 

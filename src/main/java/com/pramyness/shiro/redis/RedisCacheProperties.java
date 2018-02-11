@@ -1,6 +1,9 @@
-package com.pramy.shiro.redis;
+package com.pramyness.shiro.redis;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * IntelliJ IDEA 17
@@ -25,7 +28,7 @@ public class RedisCacheProperties {
     /**
      * Time unit：millis
      */
-    private Long sessionCacheExpire = sessionTimeOut;
+    private Long sessionCacheExpire = MILLIS_DAY;
 
     /**
      * Time unit：millis
@@ -33,6 +36,26 @@ public class RedisCacheProperties {
     private Long valueCacheExpire = -1L;
 
     private boolean isSerializeTransient=true;
+
+    private Map<String,String> filterChain ;
+
+    private List<Class<?>> classList ;
+
+    public Map<String,String> getFilterChain() {
+        return filterChain;
+    }
+
+    public void setFilterChain(Map<String,String> filterChain) {
+        this.filterChain = filterChain;
+    }
+
+    public List<Class<?>> getClassList() {
+        return classList;
+    }
+
+    public void setClassList(List<Class<?>> classList) {
+        this.classList = classList;
+    }
 
     public String getKeyPrefix() {
         return keyPrefix;

@@ -1,4 +1,4 @@
-package com.pramy.shiro.redis.cache;
+package com.pramyness.shiro.redis.cache;
 
 import org.apache.shiro.cache.Cache;
 import org.apache.shiro.cache.CacheException;
