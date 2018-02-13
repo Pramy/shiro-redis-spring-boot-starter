@@ -1,2 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.pramy.shiro.redis.AutoRedisConfig
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.pramyness.shiro.redis.AutoRedisConfig
