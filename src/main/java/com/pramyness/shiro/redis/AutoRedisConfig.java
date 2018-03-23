@@ -29,7 +29,7 @@ import java.util.List;
  */
 @Configuration
 @EnableConfigurationProperties({RedisCacheProperties.class})
-@ConditionalOnClass(RedisConnectionFactory.class)
+@ConditionalOnBean(RedisConnectionFactory.class)
 public class AutoRedisConfig {
 
     @Autowired
